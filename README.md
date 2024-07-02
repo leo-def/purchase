@@ -27,6 +27,16 @@ This is a Spring Boot application that provides services for managing purchases.
    ./mvnw spring-boot:run
    ```
 
+### Using Docker
+
+1. **Build and start the application using Docker Compose:**
+   ```bash
+   docker-compose up --build
+   ```
+
+2. **Access the application:**
+   Open your browser and go to `http://localhost:8080`.
+
 ### Health Check
 The application exposes a health check endpoint using Spring Boot Actuator.
 - URL: `http://localhost:8080/actuator/health`
