@@ -68,6 +68,11 @@ To run the tests locally:
 ./mvnw test
 ```
 
+## GitHub Actions
+The project uses GitHub Actions for CI/CD:
+- On feature branches, the tests and Javadocs generation are triggered.
+- On the main branch, a fake deploy is executed.
+
 ## Environment Variables
 Environment variables are managed using `.env` and `.env.backup` files. Sensitive information should be placed in `.env`, which should not be committed to version control. Non-sensitive configuration values can be placed in `.env.backup`.
 
