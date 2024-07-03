@@ -27,6 +27,16 @@ This is a Spring Boot application that provides services for managing purchases.
    ./mvnw spring-boot:run
    ```
 
+### Using Docker
+
+1. **Build and start the application using Docker Compose:**
+   ```bash
+   docker-compose up --build
+   ```
+
+2. **Access the application:**
+   Open your browser and go to `http://localhost:8080`.
+
 ### Health Check
 The application exposes a health check endpoint using Spring Boot Actuator.
 - URL: `http://localhost:8080/actuator/health`
@@ -57,6 +67,11 @@ To run the tests locally:
 ```bash
 ./mvnw test
 ```
+
+## GitHub Actions
+The project uses GitHub Actions for CI/CD:
+- On feature branches, the tests and Javadocs generation are triggered.
+- On the main branch, a fake deploy is executed.
 
 ## Environment Variables
 Environment variables are managed using `.env` and `.env.backup` files. Sensitive information should be placed in `.env`, which should not be committed to version control. Non-sensitive configuration values can be placed in `.env.backup`.
