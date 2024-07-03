@@ -78,6 +78,24 @@ public class PurchaseService {
                 .doOnComplete(() -> logger.debug("Completed processing sort purchase by total cost"));
     }
 
+    /**
+     * Returns the largest purchase of the specified year.
+     *
+     * @param year      the year to filter purchases by
+     * @param purchases the Flux of Purchase objects
+     * @return Mono of the largest Purchase object
+     */
+    public Mono<Purchase> getYearsLargestPurchase(int year, Flux<Purchase> purchases) {
+        logger.debug("Processing get years largest purchase");
+        return purchases
+                .filter(purchase -> purchase.getProduct().getYear() == year)
+                .sort(Comparator.comparingDouble(Purchase::getTotalCost))
+                .last()
+                .onErrorMap(throwable -> new GetYearsLargestPurchaseException("Failed to get years largest purchase", throwable))
+                .doOnNext(purchase -> logger.debug("Processing purchase: {}", purchase))
+                .doOnTerminate(() -> logger.debug("Completed processing  get years largest purchase"));
+
+    }
 
     /**
      * Retrieves all purchases for a Flux of customers.

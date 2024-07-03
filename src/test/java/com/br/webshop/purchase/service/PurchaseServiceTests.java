@@ -79,6 +79,37 @@ class PurchaseServiceTests {
     }
 
     @Test
+    void testGetYearsLargestPurchase_success() {
+        int year = 2020;
+        Purchase purchase1 = DomainUtils.getPurchase1();
+        Purchase purchase2 = DomainUtils.getPurchase2();
+        Purchase purchase3 = DomainUtils.getPurchase3();
+        Purchase purchase4 = DomainUtils.getPurchase4();
+        Purchase purchase5 = DomainUtils.getPurchase5();
+
+        Flux<Purchase> purchases = Flux.just(purchase1, purchase2, purchase3, purchase4, purchase5);
+
+        Mono<Purchase> result = purchaseService.getYearsLargestPurchase(year, purchases);
+
+        StepVerifier.create(result)
+                .expectNext(purchase5)
+                .verifyComplete();
+    }
+
+    @Test
+    void testGetYearsLargestPurchase_failure() {
+        int year = 2020;
+        Flux<Purchase> purchases = Flux.error(new RuntimeException("Get purchase error"));
+
+        Mono<Purchase> result = purchaseService.getYearsLargestPurchase(year, purchases);
+
+        StepVerifier.create(result)
+                .expectErrorMatches(throwable -> throwable instanceof GetYearsLargestPurchaseException &&
+                        throwable.getMessage().equals("Failed to get years largest purchase"))
+                .verify();
+    }
+
+    @Test
     void testGetCustomerPurchases_success() {
         Customer customer1 = DomainUtils.getCustomer1();
         Customer customer2 = DomainUtils.getCustomer2();

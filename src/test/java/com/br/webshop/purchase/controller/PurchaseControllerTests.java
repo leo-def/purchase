@@ -79,3 +79,39 @@ public class PurchaseControllerTests {
                 });
     }
 
+    @Test
+    public void testGetYearsLargestPurchase() {
+        int year = 2024;
+        Purchase purchase1 = DomainUtils.getPurchase1();
+        PurchaseDTO purchaseDTO1 = PurchaseDTO
+                .builder()
+                .quantity(1)
+                .totalCost(430.3)
+                .product(ProductDTO
+                        .builder()
+                        .code("4")
+                        .type("RosÊ")
+                        .price(430.3)
+                        .harvest("2009")
+                        .year(2020)
+                        .build())
+                .build();
+        Mockito.when(dataCoordinatorService.getEnrichedCustomerPurchases()).thenReturn(Flux.just(purchase1));
+        Mockito.when(purchaseService.getYearsLargestPurchase(eq(year), any(Flux.class))).thenReturn(Mono.just(purchase1));
+        Mockito.when(purchaseMapper.toDTO(purchase1)).thenReturn(purchaseDTO1);
+
+        webTestClient.get().uri("/purchases/maior-compra/{year}", year)
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody(PurchaseDTO.class)
+                .value(response -> {
+                    assertThat(purchaseDTO1.getQuantity()).isEqualTo(1);
+                    assertThat(purchaseDTO1.getTotalCost()).isEqualTo(430.3);
+                    assertThat(purchaseDTO1.getProduct().getCode()).isEqualTo("4");
+                    assertThat(purchaseDTO1.getProduct().getType()).isEqualTo("RosÊ");
+                    assertThat(purchaseDTO1.getProduct().getPrice()).isEqualTo(430.3);
+                    assertThat(purchaseDTO1.getProduct().getHarvest()).isEqualTo("2009");
+                    assertThat(purchaseDTO1.getProduct().getYear()).isEqualTo(2020);
+                });
+    }
+}
