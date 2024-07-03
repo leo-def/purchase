@@ -83,4 +83,35 @@ public class PurchaseController {
                 .doOnNext(response -> logger.info("Emitting response: {}", response))
                 .doOnComplete(() -> logger.info("Completed emitting responses"));
     }
+
+    /**
+     * Retrieves the largest purchase of the specified year.
+     *
+     * @param year the year to filter purchases.
+     * @return a {@link Mono} of {@link PurchaseDTO} representing the largest purchase of the year.
+     */
+    @Operation(
+            summary = "Get Year's Largest Purchase",
+            description = "Return the largest purchase of the specified year with the provided purchase details."
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful Operation",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = PurchaseDTO.class))),
+            @ApiResponse(responseCode = "400", description = "Bad Request",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "500", description = "Internal Server Error",
+                    content = @Content(mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponseDTO.class)))
+    })
+    @GetMapping("/maior-compra/{year}")
+    public Mono<PurchaseDTO> getYearsLargestPurchase(@PathVariable Integer year) {
+        logger.info("Received request to getYearsLargestPurchase for year: {}", year);
+        Flux<Purchase> purchases = dataCoordinatorService.getEnrichedCustomerPurchases();
+        return purchaseService.getYearsLargestPurchase(year, purchases)
+                .map(purchaseMapper::toDTO)
+                .doOnNext(response -> logger.info("Emitting response: {}", response))
+                .doOnTerminate(() -> logger.info("Completed emitting responses"));
+    }
 }
