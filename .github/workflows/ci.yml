@@ -15,7 +15,13 @@ on:
 
 jobs:
   build:
+    if: github.event_name == 'push' || startsWith(github.head_ref, 'feature/') || startsWith(github.head_ref, 'release/') || startsWith(github.head_ref, 'hotfix/')
     runs-on: ubuntu-latest
+    env:
+      PRODUCT_SERVICE_BASE_URL: ${{ secrets.DEV_PRODUCT_SERVICE_BASE_URL }}
+      PRODUCT_SERVICE_GET_PRODUCTS_PATH: ${{ secrets.DEV_PRODUCT_SERVICE_GET_PRODUCTS_PATH }}
+      CUSTOMER_SERVICE_BASE_URL: ${{ secrets.DEV_CUSTOMER_SERVICE_BASE_URL }}
+      CUSTOMER_SERVICE_GET_CUSTOMERS_PATH: ${{ secrets.DEV_CUSTOMER_SERVICE_GET_CUSTOMERS_PATH }}
 
     steps:
       - name: Checkout code
@@ -40,8 +46,14 @@ jobs:
         run: ./mvnw javadoc:javadoc
 
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    environment: PROD
+    env:
+      PRODUCT_SERVICE_BASE_URL: ${{ secrets.PROD_PRODUCT_SERVICE_BASE_URL }}
+      PRODUCT_SERVICE_GET_PRODUCTS_PATH: ${{ secrets.PROD_PRODUCT_SERVICE_GET_PRODUCTS_PATH }}
+      CUSTOMER_SERVICE_BASE_URL: ${{ secrets.PROD_CUSTOMER_SERVICE_BASE_URL }}
+      CUSTOMER_SERVICE_GET_CUSTOMERS_PATH: ${{ secrets.PROD_CUSTOMER_SERVICE_GET_CUSTOMERS_PATH }}
 
     steps:
       - name: Checkout code
@@ -58,3 +70,61 @@ jobs:
 
       - name: Fake deploy
         run: echo "Fake deploy"
+
+  build-dev:
+    if: github.event_name == 'pull_request' && github.base_ref == 'develop'
+    runs-on: ubuntu-latest
+    environment: DEV
+    env:
+      PRODUCT_SERVICE_BASE_URL: ${{ secrets.DEV_PRODUCT_SERVICE_BASE_URL }}
+      PRODUCT_SERVICE_GET_PRODUCTS_PATH: ${{ secrets.DEV_PRODUCT_SERVICE_GET_PRODUCTS_PATH }}
+      CUSTOMER_SERVICE_BASE_URL: ${{ secrets.DEV_CUSTOMER_SERVICE_BASE_URL }}
+      CUSTOMER_SERVICE_GET_CUSTOMERS_PATH: ${{ secrets.DEV_CUSTOMER_SERVICE_GET_CUSTOMERS_PATH }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Grant execute permission for Maven wrapper
+        run: chmod +x ./mvnw
+
+      - name: Build with Maven
+        run: ./mvnw clean install
+
+      - name: Run tests
+        run: ./mvnw test
+
+  build-stage:
+    if: github.event_name == 'pull_request' && github.base_ref == 'main'
+    runs-on: ubuntu-latest
+    environment: STAGE
+    env:
+      PRODUCT_SERVICE_BASE_URL: ${{ secrets.STAGE_PRODUCT_SERVICE_BASE_URL }}
+      PRODUCT_SERVICE_GET_PRODUCTS_PATH: ${{ secrets.STAGE_PRODUCT_SERVICE_GET_PRODUCTS_PATH }}
+      CUSTOMER_SERVICE_BASE_URL: ${{ secrets.STAGE_CUSTOMER_SERVICE_BASE_URL }}
+      CUSTOMER_SERVICE_GET_CUSTOMERS_PATH: ${{ secrets.STAGE_CUSTOMER_SERVICE_GET_CUSTOMERS_PATH }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Grant execute permission for Maven wrapper
+        run: chmod +x ./mvnw
+
+      - name: Build with Maven
+        run: ./mvnw clean install
+
+      - name: Run tests
+        run: ./mvnw test
