@@ -18,6 +18,10 @@ public class WebClientConfig {
 
     @Value("${webclient.product-service.base-url}")
     private String productServiceBaseUrl;
+
+    @Value("${webclient.customer-service.base-url}")
+    private String customerServiceBaseUrl;
+
     /**
      * Provides custom ExchangeStrategies for WebClient instances.
      *
@@ -45,6 +49,20 @@ public class WebClientConfig {
         return WebClient.builder()
                 .exchangeStrategies(exchangeStrategies)
                 .baseUrl(this.productServiceBaseUrl)
+                .build();
+    }
+
+    /**
+     * Creates a WebClient bean for interacting with the customer service.
+     *
+     * @return The configured WebClient for the customer service.
+     */
+    @Bean("customerWebClient")
+    public WebClient getCustomerWebClient() {
+        ExchangeStrategies exchangeStrategies = this.getExchangeStrategies();
+        return WebClient.builder()
+                .exchangeStrategies(exchangeStrategies)
+                .baseUrl(this.customerServiceBaseUrl)
                 .build();
     }
 }
