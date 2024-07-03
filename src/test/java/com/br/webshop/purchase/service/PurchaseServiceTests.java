@@ -48,4 +48,32 @@ class PurchaseServiceTests {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    void testGetCustomerPurchases_success() {
+        Customer customer1 = DomainUtils.getCustomer1();
+        Customer customer2 = DomainUtils.getCustomer2();
+
+        Flux<Customer> customers = Flux.just(customer1, customer2);
+
+        Flux<Purchase> result = purchaseService.getCustomerPurchases(customers);
+
+        StepVerifier.create(result)
+                .expectNext(customer1.getPurchases()[0])
+                .expectNext(customer2.getPurchases()[0])
+                .verifyComplete();
+    }
+
+    @Test
+    void testGetCustomerPurchases_failure() {
+        Customer customer = DomainUtils.getCustomer1();
+        Flux<Customer> customers = Flux.error(new RuntimeException("Get purchase error"));
+
+        Flux<Purchase> result = purchaseService.getCustomerPurchases(customers);
+
+        StepVerifier.create(result)
+                .expectErrorMatches(throwable -> throwable instanceof GetCustomerPurchasesException &&
+                        throwable.getMessage().equals("Failed to get purchases by customers"))
+                .verify();
+    }
 }

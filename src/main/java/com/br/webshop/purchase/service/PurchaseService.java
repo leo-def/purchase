@@ -63,4 +63,30 @@ public class PurchaseService {
         purchase.setTotalCost(product.getPrice() * purchase.getQuantity());
         return purchase;
     }
+
+    /**
+     * Retrieves all purchases for a Flux of customers.
+     *
+     * @param customers the Flux of Customer objects
+     * @return Flux of Purchase objects
+     */
+    public Flux<Purchase> getCustomerPurchases(Flux<Customer> customers) {
+        logger.debug("Processing get purchases by customers");
+        return customers.flatMap(this::getCustomerPurchases)
+                .onErrorMap(throwable -> new GetCustomerPurchasesException("Failed to get purchases by customers", throwable))
+                .doOnNext(purchase -> logger.debug("Processing purchase: {}", purchase))
+                .doOnComplete(() -> logger.debug("Completed processing get purchases by customer"));
+    }
+
+    /**
+     * Retrieves all purchases for a specific customer.
+     *
+     * @param customer the Customer object
+     * @return Flux of Purchase objects
+     */
+    private Flux<Purchase> getCustomerPurchases(Customer customer) {
+        logger.debug("Processing get purchases by customer: " + customer.getName());
+        return Flux.fromArray(customer.getPurchases())
+                .onErrorMap(throwable -> new GetCustomerPurchasesException("Failed to get purchases by customer" + customer.getName(), throwable));
+    }
 }
