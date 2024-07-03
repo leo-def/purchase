@@ -65,6 +65,21 @@ public class PurchaseService {
     }
 
     /**
+     * Sorts purchases by total cost in descending order.
+     *
+     * @param purchases the Flux of Purchase objects
+     * @return Flux of sorted Purchase objects
+     */
+    public Flux<Purchase> sortByTotalCost(Flux<Purchase> purchases) {
+        logger.debug("Processing sort purchase by total cost");
+        return purchases.sort(Comparator.comparingDouble(Purchase::getTotalCost).reversed())
+                .onErrorMap(throwable -> new SortPurchaseException("Failed to sort purchase by total cost", throwable))
+                .doOnNext(purchase -> logger.debug("Processing purchase: {}", purchase))
+                .doOnComplete(() -> logger.debug("Completed processing sort purchase by total cost"));
+    }
+
+
+    /**
      * Retrieves all purchases for a Flux of customers.
      *
      * @param customers the Flux of Customer objects
