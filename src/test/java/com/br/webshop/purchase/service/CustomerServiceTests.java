@@ -103,4 +103,33 @@ class CustomerServiceTests {
         verify(customerServiceClient, times(1)).getCustomers();
         verify(purchaseService, times(1)).enrichPurchasesWithProductInfo(any(Customer.class), any(Flux.class));
     }
+
+    @Test
+    void testGetMostLoyalCustomers() {
+        Customer customer1 = DomainUtils.getCustomer1();
+        Customer customer2 = DomainUtils.getCustomer2();
+        Customer customer3 = DomainUtils.getCustomer3();
+        Customer customer4 = DomainUtils.getCustomer4();
+        Customer customer5 = DomainUtils.getCustomer5();
+        Flux<Customer> customers = Flux.just(customer1, customer2, customer3, customer4, customer5);
+
+        Flux<Customer> result = customerService.getMostLoyalCustomers(customers);
+
+        StepVerifier.create(result)
+                .expectNext(customer4)
+                .expectNext(customer5)
+                .expectNext(customer2)
+                .verifyComplete();
+    }
+
+    @Test
+    void testGetMostLoyalCustomers_withException() {
+        Flux<Customer> customers = Flux.error(new RuntimeException("Error"));
+
+        Flux<Customer> result = customerService.getMostLoyalCustomers(customers);
+
+        StepVerifier.create(result)
+                .expectError(GetMostLoyalCustomerException.class)
+                .verify();
+    }
 }

@@ -92,4 +92,23 @@ public class CustomerService {
                 .doOnNext(result -> logger.debug("Processed enrichCustomerWithProductInfo: {}", result))
                 .doOnTerminate(() -> logger.debug("Completed processing enrichCustomerWithProductInfo"));
     }
+
+    /**
+     * Retrieves the top 3 most loyal customers based on their purchase history.
+     *
+     * @param customers Flux of Customer objects
+     * @return Flux of the top 3 most loyal Customer objects
+     */
+    public Flux<Customer> getMostLoyalCustomers(Flux<Customer> customers) {
+        logger.debug("Processing most loyal customers");
+        return customers
+                .sort(Comparator
+                        .comparingInt((Customer customer) -> customer.getPurchaseSummary().getCount())
+                        .thenComparingDouble((Customer customer) -> customer.getPurchaseSummary().getTotalCost())
+                        .reversed())
+                .take(3)
+                .onErrorMap(throwable -> new GetMostLoyalCustomerException("Failed to get most loyal customers", throwable))
+                .doOnNext(result -> logger.debug("Processed getMostLoyalCustomers: {}", result))
+                .doOnComplete(() -> logger.debug("Completed processing getMostLoyalCustomers"));
+    }
 }
