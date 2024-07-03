@@ -5,3 +5,6 @@ webclient:
   product-service:
     base-url: ${PRODUCT_SERVICE_BASE_URL}
     get-products-path: ${PRODUCT_SERVICE_GET_PRODUCTS_PATH}
+  customer-service:
+    base-url: ${CUSTOMER_SERVICE_BASE_URL}
+    get-customers-path: ${CUSTOMER_SERVICE_GET_CUSTOMERS_PATH}
