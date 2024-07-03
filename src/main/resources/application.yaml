@@ -1,3 +1,7 @@
 spring:
   application:
     name: Purchase
+webclient:
+  product-service:
+    base-url: ${PRODUCT_SERVICE_BASE_URL}
+    get-products-path: ${PRODUCT_SERVICE_GET_PRODUCTS_PATH}
