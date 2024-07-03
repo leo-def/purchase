@@ -27,6 +27,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: Grant execute permission for Maven wrapper
+        run: chmod +x ./mvnw
+
       - name: Build with Maven
         run: ./mvnw clean install
 
@@ -49,6 +52,9 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '17'
+
+      - name: Grant execute permission for Maven wrapper
+        run: chmod +x ./mvnw
 
       - name: Fake deploy
         run: echo "Fake deploy"
