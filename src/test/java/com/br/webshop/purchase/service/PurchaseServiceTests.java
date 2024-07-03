@@ -50,6 +50,35 @@ class PurchaseServiceTests {
     }
 
     @Test
+    void testSortByTotalCost_success() {
+        Purchase purchase1 = DomainUtils.getPurchase1();
+        Purchase purchase2 = DomainUtils.getPurchase2();
+        Purchase purchase3 = DomainUtils.getPurchase3();
+        Purchase purchase4 = DomainUtils.getPurchase4();
+        Purchase purchase5 = DomainUtils.getPurchase5();
+
+        Flux<Purchase> purchases = Flux.just(purchase1, purchase2, purchase3, purchase4, purchase5);
+
+        Flux<Purchase> result = purchaseService.sortByTotalCost(purchases);
+
+        StepVerifier.create(result)
+                .expectNext(purchase3, purchase5, purchase4, purchase2, purchase1)
+                .verifyComplete();
+    }
+
+    @Test
+    void testSortByTotalCost_failure() {
+        Flux<Purchase> purchases = Flux.error(new RuntimeException("Sort error"));
+
+        Flux<Purchase> result = purchaseService.sortByTotalCost(purchases);
+
+        StepVerifier.create(result)
+                .expectErrorMatches(throwable -> throwable instanceof SortPurchaseException &&
+                        throwable.getMessage().equals("Failed to sort purchase by total cost"))
+                .verify();
+    }
+
+    @Test
     void testGetCustomerPurchases_success() {
         Customer customer1 = DomainUtils.getCustomer1();
         Customer customer2 = DomainUtils.getCustomer2();
